@@ -1,17 +1,17 @@
 package com.spsa.employee.services;
 
-import com.fasterxml.jackson.databind.util.BeanUtil;
+import com.spsa.employee.exception.ResourceNotFoundException;
 import com.spsa.employee.entity.EmployeeEntity;
 import com.spsa.employee.model.Employee;
 import com.spsa.employee.repository.EmployeeRepository;
-import org.springframework.beans.BeanUtils;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
-
+@Transactional
 @Service
 public class EmployeeServiceImpl implements EmployeeService{
 
@@ -49,5 +49,29 @@ public class EmployeeServiceImpl implements EmployeeService{
                 .collect(Collectors.toList());
         return employees;
 
+    }
+
+    @Override
+    public boolean deleteEmployee(String id) {
+        EmployeeEntity employeeEntity = employeeRepository.findByUUId(id);
+        if (employeeEntity != null){
+            employeeRepository.deleteByUUID(id);
+        }else{
+            throw new ResourceNotFoundException("Can't find employee id.");
+
+        }
+        return true;
+
+    }
+
+    @Override
+    public Employee getEmployeeByUUID(String id) {
+        EmployeeEntity employeeEn = employeeRepository.findByUUId(id);
+        Employee employee = new Employee();
+        employee.setId(employeeEn.getId());
+        employee.setFirstName(employeeEn.getFirstName());
+        employee.setLastName(employeeEn.getLastName());
+        employee.setEmail(employeeEn.getEmail());
+        return employee;
     }
 }
